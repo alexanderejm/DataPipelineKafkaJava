@@ -1,5 +1,10 @@
-package com.example.kafka.kafkademo.kafka;
+package com.example.kafka.kafkademo.service;
 
+import com.example.kafka.kafkademo.event.OrderCancelledEvent;
+import com.example.kafka.kafkademo.event.OrderPlacedEvent;
+import com.example.kafka.kafkademo.event.OrderProcessedEvent;
+import com.example.kafka.kafkademo.model.OrderStatus;
+import com.example.kafka.kafkademo.model.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

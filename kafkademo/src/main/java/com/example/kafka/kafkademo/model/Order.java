@@ -1,4 +1,4 @@
-package com.example.kafka.kafkademo.kafka;
+package com.example.kafka.kafkademo.model;
 
 import lombok.Data;
 
@@ -9,6 +9,5 @@ public class Order {
     private int quantity;
     private OrderStatus status;
 
-    // Constructors, getters, setters
 }
 

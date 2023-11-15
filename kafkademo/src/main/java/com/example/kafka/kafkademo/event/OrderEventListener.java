@@ -1,4 +1,4 @@
-package com.example.kafka.kafkademo.kafka;
+package com.example.kafka.kafkademo.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
