@@ -1,65 +1,65 @@
 package com.example.notification.service.notificationservice.service;
 
-import com.example.notification.service.notificationservice.model.Notification;
-import com.example.notification.service.notificationservice.model.UserNotificationPreferences;
-import com.example.notification.service.notificationservice.repository.NotificationRepository;
+import com.example.notification.service.notificationservice.dto.UserNotificationPreferencesDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.HashMap;
 
 @Service
 public class NotificationService {
 
     @Autowired
-    private NotificationRepository notificationRepository;
+    private RestTemplate restTemplate;
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
-
-    @Autowired
-    private UserNotificationPreferencesService userNotificationPreferencesService;
-
-    @Autowired
-    private UserPreferenceService userPreferenceService;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
 
-    public void sendNotificationToKafka(Long userId, String message) {
-        // Fetch user-specific notification configuration
-        List<UserNotificationPreferences> preferencesList = userNotificationPreferencesService.getUserNotificationPreferences(userId);
+    @KafkaListener(topics = "notification2-events", groupId = "notification-group")
+    public void listen(HashMap<String, Object> notificationHashMap) {
 
-        // Check if the user has preferences and wants to receive notifications
-        if (!preferencesList.isEmpty() && preferencesList.stream().anyMatch(UserNotificationPreferences::isReceiveNotifications)) {
-            // Assuming a direct Kafka topic for each user (e.g., "user_notifications_<userId>")
-            String kafkaTopic = "user_notifications_" + userId;
+        sendNotificationToUser(Long.valueOf((Integer) notificationHashMap.get("1")), (String) notificationHashMap.get("0"));
+    }
+    // Other methods in NotificationService
 
-            // Send notification message to Kafka topic
-            kafkaTemplate.send(kafkaTopic, message);
+    public void sendNotificationToUser(Long userId, String message) {
+        // Make an HTTP request to UserController endpoint to retrieve user notification preferences
+        String userPreferencesUrl = "http://localhost:8083/api/users/" + userId + "/notification-preferences";
+
+        UserNotificationPreferencesDto[] notificationPreferences = restTemplate.getForObject(
+                userPreferencesUrl, UserNotificationPreferencesDto[].class);
+
+        // Process the notification preferences and send the notification accordingly
+        for (UserNotificationPreferencesDto preferences : notificationPreferences) {
+            if (preferences.isReceiveNotifications()) {
+                // Logic to send notification based on preferences (e.g., to Kafka)
+                sendNotificationToChannel(message, preferences);
+            }
         }
     }
 
-    public void sendNotificationByPreference(Long userId, String message) {
-        // Fetch user-specific notification preferences
-        List<UserNotificationPreferences> preferencesList = userNotificationPreferencesService.getActiveUserNotificationPreferences(userId);
-
-        // Send notifications based on preferences
-        for (UserNotificationPreferences preference : preferencesList) {
-            sendNotificationToChannel(userId, preference.getChannel().getChannelName(), message);
-        }
+    // Method to send notification (replace this with your actual logic)
+    private void sendNotification(String message, UserNotificationPreferencesDto preferences) {
+        // Implement your notification sending logic here
+        // For example, you can send the notification to Kafka or any other messaging system
+        System.out.println("Sending notification to user " + preferences.getUserId() +
+                " via channel " + preferences.getChannelId() +
+                " with message: " + message);
     }
 
-    private void sendNotificationToChannel(Long userId, String channel, String message) {
+    private void sendNotificationToChannel(String message, UserNotificationPreferencesDto userPreference) {
 
         // Determine the channel type and send the notification accordingly
-        switch (channel) {
+        switch (userPreference.getChannelName()) {
             case "SMS":
-                sendSmsNotification(userId, message);
+                sendSmsNotification(userPreference.getUserId(), message);
                 break;
             case "Email":
-                sendEmailNotification(userId, message);
+                sendEmailNotification(userPreference.getUserId(), message);
                 break;
             // Add other channel types as needed
         }
