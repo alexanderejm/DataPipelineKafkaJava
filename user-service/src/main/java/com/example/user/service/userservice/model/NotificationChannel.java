@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "notification_channels", schema = "notification")
+@Table(name = "notification_channels", schema = "users")
 @Data
 public class NotificationChannel {
 
