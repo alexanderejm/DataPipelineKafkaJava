@@ -51,7 +51,7 @@ public class NotificationService {
                 " with message: " + message);
     }
 
-    private void sendNotificationToChannel(String message, UserNotificationPreferencesDto userPreference) {
+    void sendNotificationToChannel(String message, UserNotificationPreferencesDto userPreference) {
 
         // Determine the channel type and send the notification accordingly
         switch (userPreference.getChannelName()) {
