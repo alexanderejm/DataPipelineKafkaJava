@@ -22,5 +22,4 @@ public class UserNotificationPreferencesDto {
         this.receiveNotifications = receiveNotifications;
     }
 
-    // Getters and setters
 }

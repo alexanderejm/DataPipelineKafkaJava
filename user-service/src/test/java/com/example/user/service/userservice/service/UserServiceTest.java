@@ -1,5 +1,6 @@
 package com.example.user.service.userservice.service;
 
+import com.example.user.service.userservice.dto.UserDto;
 import com.example.user.service.userservice.model.NotificationChannel;
 import com.example.user.service.userservice.model.User;
 import com.example.user.service.userservice.model.UserNotificationPreferences;
@@ -12,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,6 +104,33 @@ class UserServiceTest {
 
         // Assert
         assertEquals(preferences, result);
+    }
+
+    @Test
+    void addUser() {
+        // Mocking the behavior of the userRepository.save method
+        when(userRepository.save(any())).thenReturn(createMockUser());
+
+        // Creating a UserDto for testing
+        UserDto userDto = createMockUserDto();
+
+        // Calling the addUser method
+        userService.addUser(userDto);
+
+        // Verifying that the save method of userRepository was called with the expected argument
+        verify(userRepository).save(any());
+    }
+
+    private UserDto createMockUserDto() {
+        return new UserDto(1L,"john_doe", "john.doe@example.com","111111111");
+    }
+
+    private User createMockUser() {
+        User user = new User();
+        user.setUserId(1L);
+        user.setUsername("john_doe");
+        user.setEmail("john.doe@example.com");
+        return user;
     }
 
     List<UserNotificationPreferences> getUserNotificationPreferencesForTest(){

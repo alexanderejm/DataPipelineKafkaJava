@@ -12,6 +12,7 @@ public class UserDto {
     private Long userId;
     private String username;
     private String email;
+    private String phoneNumber;
 
     // No need for explicit getters and setters with Lombok
 
