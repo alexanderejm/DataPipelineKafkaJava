@@ -10,8 +10,12 @@ import java.util.List;
 @Service
 public class UserNotificationPreferencesService {
 
+    private final UserNotificationPreferencesRepository userNotificationPreferencesRepository;
+
     @Autowired
-    private UserNotificationPreferencesRepository userNotificationPreferencesRepository;
+    public UserNotificationPreferencesService(UserNotificationPreferencesRepository userNotificationPreferencesRepository) {
+        this.userNotificationPreferencesRepository = userNotificationPreferencesRepository;
+    }
 
     public List<UserNotificationPreferences> getUserNotificationPreferences(Long userId) {
         return userNotificationPreferencesRepository.findByIdUserId(userId);

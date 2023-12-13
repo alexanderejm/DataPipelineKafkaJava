@@ -1,5 +1,7 @@
 package com.example.user.service.userservice.service;
 
+import com.example.user.service.userservice.dto.UserDto;
+import com.example.user.service.userservice.dto.UserNotificationPreferencesDto;
 import com.example.user.service.userservice.model.User;
 import com.example.user.service.userservice.model.UserNotificationPreferences;
 import com.example.user.service.userservice.repository.UserRepository;
@@ -12,11 +14,16 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final UserNotificationPreferencesService userNotificationPreferencesService;
 
     @Autowired
-    private UserNotificationPreferencesService userNotificationPreferencesService;
+    public UserService(UserRepository userRepository, UserNotificationPreferencesService userNotificationPreferencesService) {
+        this.userRepository = userRepository;
+        this.userNotificationPreferencesService = userNotificationPreferencesService;
+    }
+
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -38,5 +45,13 @@ public class UserService {
         // Fetch user-specific notification preferences
         return userNotificationPreferencesService.getActiveUserNotificationPreferences(userId);
 
+    }
+
+    public User addUser(UserDto userDto) {
+        User newUser = new User();
+        newUser.setUsername(userDto.getUsername());
+        newUser.setEmail(userDto.getEmail());
+        newUser.setPhoneNumber(userDto.getPhoneNumber());
+        return userRepository.save(newUser);
     }
 }

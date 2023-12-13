@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "users", schema = "notification")
+@Table(name = "users", schema = "users")
 @Data
 public class User {
 
@@ -15,4 +15,6 @@ public class User {
     private String username;
 
     private String email;
+
+    private String phoneNumber;
 }

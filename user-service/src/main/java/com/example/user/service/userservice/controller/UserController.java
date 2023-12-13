@@ -25,13 +25,11 @@ public class UserController {
         this.userService = userService;
     }
 
-    //TODO Register functionality
-    /*@PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
-        // Validate the request, perform business logic, and register the user
-        userService.registerUser(userRegistrationRequest);
-        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
-    }*/
+    @PostMapping
+    public ResponseEntity<User> addUser(@RequestBody UserDto userDto) {
+        User newUser = userService.addUser(userDto);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
@@ -81,7 +79,7 @@ public class UserController {
     // Map User to UserDto if needed
     private UserDto mapUserToDto(User user) {
         // Your mapping logic here
-        return new UserDto(user.getUserId(), user.getUsername(), user.getEmail());
+        return new UserDto(user.getUserId(), user.getUsername(), user.getEmail(), user.getPhoneNumber());
     }
 
     // Add more endpoints as needed for user management
