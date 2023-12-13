@@ -1,22 +1,42 @@
 package com.example.authenticator.service.authenticatorservice.service;
 
-import com.example.authenticator.service.authenticatorservice.ApiKeyAuthentication;
+import com.example.authenticator.service.authenticatorservice.*;
+import com.example.authenticator.service.authenticatorservice.entities.Role;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class AuthenticationService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-    private static final String AUTH_TOKEN_HEADER_NAME = "X-API-KEY";
-    private static final String AUTH_TOKEN = "Baeldung";
+    public JwtAuthenticationResponse signup(SignUpRequest request) {
+        var user = User.builder().email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER).build();
+        userRepository.save(user);
+        var jwt = jwtService.generateToken(user);
+        return JwtAuthenticationResponse.builder().token(jwt).build();
+    }
 
-    public static Authentication getAuthentication(HttpServletRequest request) {
-        String apiKey = request.getHeader(AUTH_TOKEN_HEADER_NAME);
-        if (apiKey == null || !apiKey.equals(AUTH_TOKEN)) {
-            throw new BadCredentialsException("Invalid API Key");
-        }
+    public JwtAuthenticationResponse signin(SigninRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+        var jwt = jwtService.generateToken(user);
+        return JwtAuthenticationResponse.builder().token(jwt).build();
+    }
 
-        return new ApiKeyAuthentication(apiKey, AuthorityUtils.NO_AUTHORITIES);
+    public boolean isTokenValid(String token) {
+        return !jwtService.isTokenExpired(token);
     }
 }

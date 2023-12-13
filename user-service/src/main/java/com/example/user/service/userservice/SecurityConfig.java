@@ -1,4 +1,4 @@
-package com.example.order.service.orderservice;
+package com.example.user.service.userservice;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
